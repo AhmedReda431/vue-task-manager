@@ -1,0 +1,102 @@
+// ---------------------------------------------------------------------------
+// Global styles
+// Tailwind handles most utility spacing/layout. This file is for the stuff
+// that's easier to express as real CSS: color tokens, status colors, small
+// reusable mixins and a couple of hand-tuned animations.
+// ---------------------------------------------------------------------------
+
+@use 'sass:color';
+
+// Brand + status palette. Kept in one place so components just reference
+// these instead of hardcoding hex values everywhere.
+$color-ink: #1c2530;
+$color-paper: #f7f7f5;
+$color-accent: #3b6e64; // muted teal, used for primary actions
+$color-accent-dark: color.adjust($color-accent, $lightness: -10%);
+
+$status-pending: #8a8f98;
+$status-in-progress: #b7791f;
+$status-done: #2f7d5f;
+
+$radius-sm: 6px;
+$radius-md: 10px;
+
+@mixin card-shadow {
+  box-shadow: 0 1px 2px rgba(28, 37, 48, 0.06), 0 1px 1px rgba(28, 37, 48, 0.04);
+}
+
+@mixin focus-ring {
+  &:focus-visible {
+    outline: 2px solid $color-accent;
+    outline-offset: 2px;
+  }
+}
+
+html,
+body,
+#__nuxt {
+  height: 100%;
+}
+
+body {
+  background-color: $color-paper;
+  color: $color-ink;
+  -webkit-font-smoothing: antialiased;
+}
+
+// Status dot used in TaskCard / StatusBadge - a small SCSS map keeps the
+// three status colors in sync without repeating hex codes in components.
+$statuses: (
+  'pending': $status-pending,
+  'in-progress': $status-in-progress,
+  'done': $status-done
+);
+
+@each $name, $color in $statuses {
+  .status-dot--#{$name} {
+    background-color: $color;
+  }
+
+  .status-text--#{$name} {
+    color: $color;
+  }
+}
+
+// Subtle entrance for cards when the list re-renders after filtering.
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.task-card-enter {
+  animation: fade-in-up 0.18s ease-out;
+}
+
+// Reusable focus + button helpers, kept as classes so components can
+// compose them with Tailwind utilities via `class="btn ..."`.
+.btn {
+  @include focus-ring;
+  border-radius: $radius-sm;
+  font-weight: 500;
+  transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.btn-primary {
+  background-color: $color-accent;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: $color-accent-dark;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
