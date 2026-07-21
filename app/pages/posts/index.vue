@@ -52,6 +52,10 @@ onUnmounted(() => {
 
 function goToPage(page: number) {
   if (page < 1 || page > store.totalPages || page === store.page) return;
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
   store.fetchPage(page);
 }
 
@@ -95,6 +99,10 @@ const paginationItems = computed(() => {
           Pulled live from dummyjson. Choose your preferred pagination
           experience below.
         </p>
+        <small
+          class="text-white p-2 mt-2 inline-block capitalize bg-red-500"
+          >This supplemental guide demonstrates how to retrieve tasks (posts) from the endpoint.
+        </small>
       </div>
 
       <!-- Pagination Mode -->
