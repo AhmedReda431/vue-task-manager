@@ -127,7 +127,10 @@ function handleSearch(query: string) {
               ? 'bg-accent text-paper shadow'
               : 'text-ink hover:text-accent'
           "
-          @click="store.setMode('buttons')"
+          @click="
+            store.setMode('buttons');
+            handleSearch;
+          "
         >
           Page Buttons
         </button>
@@ -139,7 +142,10 @@ function handleSearch(query: string) {
               ? 'bg-accent text-paper shadow'
               : 'text-ink hover:text-accent'
           "
-          @click="store.setMode('scroll')"
+          @click="
+            store.setMode('scroll');
+            handleSearch;
+          "
         >
           Infinite Scroll
         </button>
@@ -147,7 +153,6 @@ function handleSearch(query: string) {
 
       <!-- Search & Filter -->
       <PostFilters
-        :search-query="store.searchQuery"
         :tag-filter="store.tagFilter"
         :available-tags="store.availableTags"
         @update:search-query="handleSearch"
@@ -157,10 +162,7 @@ function handleSearch(query: string) {
       <!-- Active filters indicator -->
       <div class="mb-4 flex flex-wrap items-center gap-2">
         <p class="text-sm text-ink/60">
-          <span v-if="store.tagFilter && store.searchQuery.trim()">
-            {{ store.filteredPosts.length }} of {{ store.total }} posts
-          </span>
-          <span v-else> {{ store.total }} posts </span>
+          {{ store.total }} posts
           <template v-if="store.tagFilter || store.searchQuery">
             <span>filtered by</span>
             <span v-if="store.tagFilter" class="font-semibold text-accent">
@@ -196,10 +198,10 @@ function handleSearch(query: string) {
       />
 
       <template v-else>
-        <!-- Posts List -->
-        <div v-if="store.filteredPosts.length > 0" class="space-y-4">
+        <!-- Posts List - USE store.posts NOT store.filteredPosts -->
+        <div v-if="store.posts.length > 0" class="space-y-4">
           <PostCard
-            v-for="post in store.filteredPosts"
+            v-for="post in store.posts"
             :key="post.id"
             :post="post"
             @edit="openEditForm"
@@ -217,10 +219,7 @@ function handleSearch(query: string) {
 
         <!-- Pagination: Buttons Mode -->
         <PaginationControls
-          v-if="
-            store.mode === 'buttons' &&
-            !(store.tagFilter && store.searchQuery.trim())
-          "
+          v-if="store.mode === 'buttons'"
           :current-page="store.page"
           :total-pages="store.totalPages"
           :show-info="false"
@@ -228,11 +227,7 @@ function handleSearch(query: string) {
         />
 
         <!-- Pagination: Infinite Scroll Mode -->
-        <div
-          v-else-if="store.mode === 'scroll'"
-          ref="sentinel"
-          class="flex justify-center py-8"
-        >
+        <div v-else ref="sentinel" class="flex justify-center py-8">
           <PaginationControls
             mode="scroll"
             :loading-more="store.loadingMore"

@@ -14,7 +14,6 @@ interface PostsState {
   mode: 'buttons' | 'scroll'
   searchQuery: string
   tagFilter: string
-  allTagPosts: Post[] // Store all posts for current tag (for client-side search)
 }
 
 const API_BASE = 'https://dummyjson.com/posts'
@@ -35,8 +34,7 @@ export const usePostsStore = defineStore('posts', {
     hasMore: true,
     mode: 'buttons',
     searchQuery: '',
-    tagFilter: '',
-    allTagPosts: []
+    tagFilter: ''
   }),
 
   getters: {
@@ -48,44 +46,7 @@ export const usePostsStore = defineStore('posts', {
       ]
     },
 
-    // When both tag and search are active, filter from allTagPosts
-    // When only tag, use posts (paginated from API)
-    // When only search, use posts (from search API)
-    filteredPosts(): Post[] {
-      const query = this.searchQuery.trim().toLowerCase()
-      
-      // Both tag + search: filter from all tag posts
-      if (this.tagFilter && query) {
-        return this.allTagPosts.filter((post) =>
-          post.title.toLowerCase().includes(query) ||
-          post.body.toLowerCase().includes(query)
-        )
-      }
-      
-      // Search only (no tag): filter from current posts if needed
-      if (query && !this.tagFilter) {
-        return this.posts.filter((post) =>
-          post.title.toLowerCase().includes(query) ||
-          post.body.toLowerCase().includes(query)
-        )
-      }
-      
-      // Tag only or no filters
-      return this.posts
-    },
-
-    // Total for display
-    displayTotal(): number {
-      if (this.tagFilter && this.searchQuery.trim()) {
-        return this.filteredPosts.length
-      }
-      return this.total
-    },
-
     totalPages(): number {
-      if (this.tagFilter && this.searchQuery.trim()) {
-        return Math.max(1, Math.ceil(this.filteredPosts.length / this.pageSize))
-      }
       return Math.max(1, Math.ceil(this.total / this.pageSize))
     },
 
@@ -104,58 +65,43 @@ export const usePostsStore = defineStore('posts', {
   },
 
   actions: {
-    // Build API URL
-    _buildUrl(page: number, limit?: number): string {
-      const skip = (page - 1) * (limit || this.pageSize)
-      const pageLimit = limit || this.pageSize
+    // Build API URL with proper query params
+    _buildUrl(page: number): string {
+      const skip = (page - 1) * this.pageSize
+      const params = new URLSearchParams()
+      params.set('limit', String(this.pageSize))
+      params.set('skip', String(skip))
 
-      // If tag is active: use tag endpoint
+      // Always add search query if present
+      const query = this.searchQuery.trim()
+      if (query) {
+        params.set('q', query)
+      }
+
+      // If tag selected: use tag endpoint + search as query param
       if (this.tagFilter) {
-        return `${API_BASE}/tag/${encodeURIComponent(this.tagFilter)}?limit=${pageLimit}&skip=${skip}`
+        return `${API_BASE}/tag/${encodeURIComponent(this.tagFilter)}?${params.toString()}`
       }
 
       // If search only: use search endpoint
-      const query = this.searchQuery.trim()
       if (query) {
-        return `${API_BASE}/search?q=${encodeURIComponent(query)}&limit=${pageLimit}&skip=${skip}`
+        return `${API_BASE}/search?${params.toString()}`
       }
 
       // Default: all posts
-      return `${API_BASE}?limit=${pageLimit}&skip=${skip}`
+      return `${API_BASE}?${params.toString()}`
     },
 
     async fetchPage(page: number) {
       this.loading = true
       this.error = null
-      
       try {
-        // If both tag + search, fetch ALL posts for the tag (up to 100)
-        // then filter client-side
-        if (this.tagFilter && this.searchQuery.trim()) {
-          const url = `${API_BASE}/tag/${encodeURIComponent(this.tagFilter)}?limit=100&skip=0`
-          const data = await $fetch<{ posts: Post[]; total: number }>(url)
-          this.allTagPosts = data.posts
-          this.total = data.total
-          
-          // Apply client-side search filter
-          const query = this.searchQuery.trim().toLowerCase()
-          this.posts = data.posts.filter((post) =>
-            post.title.toLowerCase().includes(query) ||
-            post.body.toLowerCase().includes(query)
-          ).slice(0, this.pageSize)
-          
-          this.page = 1
-          this.hasMore = this.filteredPosts.length > this.pageSize
-        } else {
-          // Normal API call (tag only, search only, or no filters)
-          const url = this._buildUrl(page)
-          const data = await $fetch<{ posts: Post[]; total: number }>(url)
-          this.posts = data.posts
-          this.total = data.total
-          this.page = page
-          this.hasMore = this.posts.length < this.total
-          this.allTagPosts = []
-        }
+        const url = this._buildUrl(page)
+        const data = await $fetch<{ posts: Post[]; total: number }>(url)
+        this.posts = data.posts
+        this.total = data.total
+        this.page = page
+        this.hasMore = this.posts.length < this.total
       } catch (err) {
         this.error = 'Could not load posts. Please try again.'
       } finally {
@@ -165,10 +111,6 @@ export const usePostsStore = defineStore('posts', {
 
     async fetchNextPage() {
       if (this.loadingMore || !this.hasMore) return
-      
-      // Don't fetch next page if both tag + search (all data already loaded)
-      if (this.tagFilter && this.searchQuery.trim()) return
-      
       this.loadingMore = true
       const startTime = Date.now()
 
@@ -212,9 +154,6 @@ export const usePostsStore = defineStore('posts', {
         })
         const index = this.posts.findIndex((p) => p.id === id)
         if (index !== -1) this.posts[index] = updated
-        // Also update in allTagPosts if present
-        const tagIndex = this.allTagPosts.findIndex((p) => p.id === id)
-        if (tagIndex !== -1) this.allTagPosts[tagIndex] = updated
         toast.success('Post updated successfully')
         return updated
       } catch (err) {
@@ -229,7 +168,6 @@ export const usePostsStore = defineStore('posts', {
       try {
         await $fetch(`${API_BASE}/${id}`, { method: 'DELETE' })
         this.posts = this.posts.filter((p) => p.id !== id)
-        this.allTagPosts = this.allTagPosts.filter((p) => p.id !== id)
         this.total = Math.max(0, this.total - 1)
         toast.success('Post deleted successfully')
       } catch (err) {
@@ -242,7 +180,6 @@ export const usePostsStore = defineStore('posts', {
       this.mode = mode
       this.page = 1
       this.posts = []
-      this.allTagPosts = []
       this.hasMore = true
       this.fetchPage(1)
     },
@@ -251,7 +188,6 @@ export const usePostsStore = defineStore('posts', {
       this.tagFilter = tag
       this.page = 1
       this.posts = []
-      this.allTagPosts = []
       this.hasMore = true
       this.fetchPage(1)
     },
@@ -269,7 +205,6 @@ export const usePostsStore = defineStore('posts', {
       this.tagFilter = ''
       this.page = 1
       this.posts = []
-      this.allTagPosts = []
       this.hasMore = true
       this.fetchPage(1)
     }
