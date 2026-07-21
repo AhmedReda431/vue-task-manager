@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { PostDraft } from "~/types/post";
 useSeoMeta({
-  title: "Single Post Details Page",
+  title: "Post Details",
   description:
-    "posts Page that show how how to represent single post ( task ) data fetched from api ",
+    "View full post details, content updates, and related information for this post.",
 });
 const route = useRoute();
 const router = useRouter();

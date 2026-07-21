@@ -1,8 +1,9 @@
 <script setup lang="ts">
 const store = usePostsStore();
 useSeoMeta({
-  title: "Posts Page",
-  description: "posts Page that show how how to represent data that fetched from api ( tasks)",
+  title: "All Posts",
+  description:
+    "Browse the complete list of posts, view ongoing tasks, and explore recent content updates.",
 });
 const sentinel = ref<HTMLElement | null>(null);
 let observer: IntersectionObserver | null = null;
@@ -116,7 +117,8 @@ function clearSearch() {
           Pulled live from dummyjson. Choose your preferred pagination
           experience below.
         </p>
-        <small class="text-red-800 font-medium p-2 mt-2 inline-block capitalize bg-red-100"
+        <small
+          class="text-red-800 font-medium p-2 mt-2 inline-block capitalize bg-red-100"
           >This supplemental guide demonstrates how to retrieve tasks (posts)
           from the endpoint.
         </small>

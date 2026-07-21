@@ -2,8 +2,9 @@
 import type { Task, TaskDraft } from "~/types/task";
 
 useSeoMeta({
-  title: "Tasks Page",
-  description: "Tasks Page that show how how to represent mock data ( tasks)",
+  title: "Tasks Dashboard",
+  description:
+    "Explore the task management dashboard to view project progress, sample items, and workflow examples.",
 });
 const store = useTasksStore();
 

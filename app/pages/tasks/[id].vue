@@ -5,8 +5,8 @@ const route = useRoute();
 const router = useRouter();
 const store = useTasksStore();
 useSeoMeta({
-  title: "Task Single Details Page",
-  description: "Tasks Page that show single task data",
+  title: "Task Details",
+  description: "View specific details, assignments, and notes for this task.",
 });
 // If someone lands here directly (refresh, shared link) the store may be
 // empty, so make sure the data is loaded before looking the task up.
