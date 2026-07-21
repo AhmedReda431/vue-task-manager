@@ -232,6 +232,7 @@ function clearSearch() {
           :total-count="store.total"
           :show-info="true"
           @change="goToPage"
+          postsPage
         />
 
         <!-- Pagination: Infinite Scroll Mode -->

@@ -1,61 +1,63 @@
 <script setup lang="ts">
 const props = withDefaults(
   defineProps<{
-    currentPage: number
-    totalPages: number
-    showingFrom?: number
-    showingTo?: number
-    totalCount?: number
-    showInfo?: boolean
-    mode?: 'buttons' | 'scroll'
-    loadingMore?: boolean
-    hasMore?: boolean
+    currentPage: number;
+    totalPages: number;
+    showingFrom?: number;
+    showingTo?: number;
+    totalCount?: number;
+    showInfo?: boolean;
+    mode?: "buttons" | "scroll";
+    loadingMore?: boolean;
+    hasMore?: boolean;
+    postsPage: boolean;
   }>(),
   {
     showInfo: true,
-    mode: 'buttons',
+    mode: "buttons",
     showingFrom: 0,
     showingTo: 0,
     totalCount: 0,
     loadingMore: false,
-    hasMore: true
-  }
-)
+    hasMore: true,
+    postsPage: false,
+  },
+);
 
 const emit = defineEmits<{
-  change: [page: number]
-}>()
+  change: [page: number];
+}>();
 
 function goToPage(page: number) {
-  if (page < 1 || page > props.totalPages || page === props.currentPage) return
-  emit('change', page)
+  if (page < 1 || page > props.totalPages || page === props.currentPage) return;
+  emit("change", page);
 }
 
 const paginationItems = computed(() => {
-  const current = props.currentPage
-  const total = props.totalPages
+  const current = props.currentPage;
+  const total = props.totalPages;
 
   if (total <= 7) {
-    return Array.from({ length: total }, (_, i) => i + 1)
+    return Array.from({ length: total }, (_, i) => i + 1);
   }
 
-  const items: (number | string)[] = []
-  items.push(1)
+  const items: (number | string)[] = [];
+  items.push(1);
 
-  const start = Math.max(2, current - 1)
-  const end = Math.min(total - 1, current + 1)
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
 
-  if (start > 2) items.push('...')
+  if (start > 2) items.push("...");
 
   for (let i = start; i <= end; i++) {
-    items.push(i)
+    items.push(i);
   }
 
-  if (end < total - 1) items.push('...')
+  if (end < total - 1) items.push("...");
 
-  items.push(total)
-  return items
-})
+  items.push(total);
+  return items;
+});
 </script>
 
 <template>
@@ -63,11 +65,9 @@ const paginationItems = computed(() => {
   <div
     v-if="mode === 'buttons'"
     class="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4"
+    :class="{ 'sm:flex-col': postsPage }"
   >
-    <div
-      v-if="showInfo"
-      class="text-sm text-ink/70"
-    >
+    <div v-if="showInfo" class="text-sm text-ink/70">
       Showing
       <span class="font-semibold text-ink">{{ showingFrom }}</span>
       to
@@ -101,10 +101,7 @@ const paginationItems = computed(() => {
         v-for="(item, index) in paginationItems"
         :key="`${item}-${index}`"
       >
-        <span
-          v-if="item === '...'"
-          class="px-2 font-semibold text-accent"
-        >
+        <span v-if="item === '...'" class="px-2 font-semibold text-accent">
           •••
         </span>
 
@@ -140,24 +137,19 @@ const paginationItems = computed(() => {
   </div>
 
   <!-- Scroll mode -->
-  <div
-    v-else
-    class="flex flex-col items-center justify-center py-10"
-  >
+  <div v-else class="flex flex-col items-center justify-center py-10">
     <!-- Loading: bigger spinner, accent color, pulsing -->
-    <div
-      v-if="loadingMore"
-      class="flex flex-col items-center gap-3 py-6"
-    >
-      <div class="w-10 h-10 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
-      <p class="text-sm font-medium text-accent animate-pulse">Loading more posts...</p>
+    <div v-if="loadingMore" class="flex flex-col items-center gap-3 py-6">
+      <div
+        class="w-10 h-10 border-4 border-accent/20 border-t-accent rounded-full animate-spin"
+      />
+      <p class="text-sm font-medium text-accent animate-pulse">
+        Loading more posts...
+      </p>
     </div>
 
     <!-- End of list -->
-    <div
-      v-else-if="!hasMore"
-      class="flex flex-col items-center gap-2 py-6"
-    >
+    <div v-else-if="!hasMore" class="flex flex-col items-center gap-2 py-6">
       <div class="w-12 h-0.5 bg-gray-300 rounded-full" />
       <p class="text-sm text-ink/50">You've reached the end</p>
     </div>
@@ -201,7 +193,9 @@ const paginationItems = computed(() => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .animate-spin {
