@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
+  searchQuery: string,
   tagFilter: string;
   availableTags: string[];
 }>();
@@ -9,9 +10,11 @@ const emit = defineEmits<{
   "update:tagFilter": [tag: string];
 }>();
 
-// Search is fully local — no prop binding
-const localSearch = ref("");
-
+// Sync local search with prop (one-way: parent clears → child clears)
+const localSearch = ref(props.searchQuery)
+watch(() => props.searchQuery, (val) => {
+  localSearch.value = val
+})
 // Tag syncs with prop (dropdown needs to reflect store state)
 const localTag = ref(props.tagFilter);
 watch(
@@ -24,15 +27,15 @@ watch(
 let debounceTimer: ReturnType<typeof setTimeout>;
 
 function onSearchInput() {
-  clearTimeout(debounceTimer);
+  clearTimeout(debounceTimer)
   debounceTimer = setTimeout(() => {
-    emit("update:searchQuery", localSearch.value);
-  }, 400);
+    emit('update:searchQuery', localSearch.value)
+  }, 400)
 }
 
 function clearSearch() {
-  localSearch.value = "";
-  emit("update:searchQuery", "");
+  localSearch.value = ''
+  emit('update:searchQuery', '')
 }
 
 function onTagChange() {

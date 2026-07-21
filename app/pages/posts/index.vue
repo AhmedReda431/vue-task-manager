@@ -101,7 +101,6 @@ function clearSearch() {
   localSearch.value = "";
   emit("update:searchQuery", "");
 }
-
 </script>
 
 <template>
@@ -158,6 +157,7 @@ function clearSearch() {
 
       <!-- Search & Filter -->
       <PostsPostFilters
+        :search-query="store.searchQuery"
         :tag-filter="store.tagFilter"
         :available-tags="store.availableTags"
         @update:search-query="handleSearch"
