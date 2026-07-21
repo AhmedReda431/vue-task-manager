@@ -51,13 +51,9 @@ async function confirmDelete() {
   deleteTargetId.value = null
 }
 
-// NEW: handle page change with scroll to top
 async function handlePageChange(page: number) {
   await store.setPage(page)
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  })
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 </script>
 
@@ -69,8 +65,8 @@ async function handlePageChange(page: number) {
         <h1 class="font-display text-2xl font-semibold text-ink dark:text-paper">
           Tasks
         </h1>
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400 capitalize">
-          <span class="text-accent">{{ store.totalFilteredCount }}</span> total
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          {{ store.totalFilteredCount }} total
         </p>
       </div>
       <button
@@ -112,7 +108,7 @@ async function handlePageChange(page: number) {
       <!-- Page transition loading -->
       <LoadingState v-if="store.pageLoading" />
 
-      <!-- Task list (hidden during page load) -->
+      <!-- Task list -->
       <TransitionGroup
         v-else
         tag="div"
@@ -136,6 +132,7 @@ async function handlePageChange(page: number) {
         :showing-to="store.showingTo"
         :total-count="store.totalFilteredCount"
         @change="handlePageChange"
+        v-if="!store?.loading"
       />
     </template>
 

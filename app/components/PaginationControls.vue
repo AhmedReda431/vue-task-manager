@@ -1,60 +1,74 @@
 <script setup lang="ts">
 const props = withDefaults(
   defineProps<{
-    currentPage: number;
-    totalPages: number;
-    showingFrom: number;
-    showingTo: number;
-    totalCount: number;
-    showInfo?: boolean;
+    currentPage: number
+    totalPages: number
+    showingFrom?: number
+    showingTo?: number
+    totalCount?: number
+    showInfo?: boolean
+    mode?: 'buttons' | 'scroll'
+    loadingMore?: boolean
+    hasMore?: boolean
   }>(),
   {
     showInfo: true,
-  },
-);
+    mode: 'buttons',
+    showingFrom: 0,
+    showingTo: 0,
+    totalCount: 0,
+    loadingMore: false,
+    hasMore: true
+  }
+)
 
 const emit = defineEmits<{
-  change: [page: number];
-}>();
+  change: [page: number]
+}>()
 
 function goToPage(page: number) {
-  if (page < 1 || page > props.totalPages || page === props.currentPage) return;
-  emit("change", page);
+  if (page < 1 || page > props.totalPages || page === props.currentPage) return
+  emit('change', page)
 }
 
 const paginationItems = computed(() => {
-  const current = props.currentPage;
-  const total = props.totalPages;
+  const current = props.currentPage
+  const total = props.totalPages
 
   if (total <= 7) {
-    return Array.from({ length: total }, (_, i) => i + 1);
+    return Array.from({ length: total }, (_, i) => i + 1)
   }
 
-  const items: (number | string)[] = [];
-  items.push(1);
+  const items: (number | string)[] = []
+  items.push(1)
 
-  const start = Math.max(2, current - 1);
-  const end = Math.min(total - 1, current + 1);
+  const start = Math.max(2, current - 1)
+  const end = Math.min(total - 1, current + 1)
 
-  if (start > 2) items.push("...");
+  if (start > 2) items.push('...')
 
   for (let i = start; i <= end; i++) {
-    items.push(i);
+    items.push(i)
   }
 
-  if (end < total - 1) items.push("...");
+  if (end < total - 1) items.push('...')
 
-  items.push(total);
-  return items;
-});
+  items.push(total)
+  return items
+})
 </script>
 
 <template>
+  <!-- Buttons mode -->
   <div
+    v-if="mode === 'buttons'"
     class="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4"
   >
-    <!-- Info text (toggleable) -->
-    <div v-if="showInfo" class="text-sm text-ink/70">
+    <!-- Info text -->
+    <div
+      v-if="showInfo"
+      class="text-sm text-ink/70"
+    >
       Showing
       <span class="font-semibold text-ink">{{ showingFrom }}</span>
       to
@@ -63,13 +77,10 @@ const paginationItems = computed(() => {
       <span class="font-semibold text-ink">{{ totalCount }}</span>
       tasks
     </div>
-
-    <!-- Spacer when info is hidden -->
     <div v-else />
 
-    <!-- Pagination controls -->
+    <!-- Controls -->
     <div class="flex flex-wrap items-center justify-center gap-2">
-      <!-- First -->
       <button
         type="button"
         class="pagination-btn"
@@ -79,7 +90,6 @@ const paginationItems = computed(() => {
         First
       </button>
 
-      <!-- Previous -->
       <button
         type="button"
         class="pagination-btn"
@@ -89,12 +99,14 @@ const paginationItems = computed(() => {
         ←
       </button>
 
-      <!-- Page Numbers -->
       <template
         v-for="(item, index) in paginationItems"
         :key="`${item}-${index}`"
       >
-        <span v-if="item === '...'" class="px-2 font-semibold text-accent">
+        <span
+          v-if="item === '...'"
+          class="px-2 font-semibold text-accent"
+        >
           •••
         </span>
 
@@ -109,7 +121,6 @@ const paginationItems = computed(() => {
         </button>
       </template>
 
-      <!-- Next -->
       <button
         type="button"
         class="pagination-btn"
@@ -119,7 +130,6 @@ const paginationItems = computed(() => {
         →
       </button>
 
-      <!-- Last -->
       <button
         type="button"
         class="pagination-btn"
@@ -129,6 +139,24 @@ const paginationItems = computed(() => {
         Last
       </button>
     </div>
+  </div>
+
+  <!-- Scroll mode -->
+  <div
+    v-else
+    class="flex justify-center py-8"
+  >
+    <div
+      v-if="loadingMore"
+      class="mt-6 flex flex-col items-center gap-3 py-6"
+    >
+      <Spinner size="md" class="text-accent" />
+      <p class="text-sm text-ink/70">Loading more posts...</p>
+    </div>
+
+    <p v-else-if="!hasMore" class="text-sm text-ink/60">
+      You've reached the end.
+    </p>
   </div>
 </template>
 
