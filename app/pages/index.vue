@@ -132,7 +132,7 @@ async function handlePageChange(page: number) {
         :showing-to="store.showingTo"
         :total-count="store.totalFilteredCount"
         @change="handlePageChange"
-        v-if="!store?.loading"
+        v-if="!store?.loading && !store?.pageLoading"
       />
     </template>
 

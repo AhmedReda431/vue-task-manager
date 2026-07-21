@@ -3,6 +3,7 @@
     <NuxtRouteAnnouncer />
     <AppHeader />
     <NuxtPage />
+    <ToastContainer />
     <ScrollTopButton />
   </div>
 </template>

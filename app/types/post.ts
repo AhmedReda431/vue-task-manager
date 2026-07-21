@@ -1,8 +1,19 @@
 export interface Post {
   id: number
-  userId: number
   title: string
   body: string
+  tags: string[]
+  reactions: {
+    likes: number
+    dislikes: number
+  }
+  views: number
+  userId: number
 }
 
-export type PaginationMode = 'buttons' | 'scroll'
+export interface PostDraft {
+  title: string
+  body: string
+  userId: number
+  tags?: string[]
+}

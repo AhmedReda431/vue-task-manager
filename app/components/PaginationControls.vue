@@ -64,7 +64,6 @@ const paginationItems = computed(() => {
     v-if="mode === 'buttons'"
     class="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4"
   >
-    <!-- Info text -->
     <div
       v-if="showInfo"
       class="text-sm text-ink/70"
@@ -79,7 +78,6 @@ const paginationItems = computed(() => {
     </div>
     <div v-else />
 
-    <!-- Controls -->
     <div class="flex flex-wrap items-center justify-center gap-2">
       <button
         type="button"
@@ -144,19 +142,28 @@ const paginationItems = computed(() => {
   <!-- Scroll mode -->
   <div
     v-else
-    class="flex justify-center py-8"
+    class="flex flex-col items-center justify-center py-10"
   >
+    <!-- Loading: bigger spinner, accent color, pulsing -->
     <div
       v-if="loadingMore"
-      class="mt-6 flex flex-col items-center gap-3 py-6"
+      class="flex flex-col items-center gap-3 py-6"
     >
-      <Spinner size="md" class="text-accent" />
-      <p class="text-sm text-ink/70">Loading more posts...</p>
+      <div class="w-10 h-10 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
+      <p class="text-sm font-medium text-accent animate-pulse">Loading more posts...</p>
     </div>
 
-    <p v-else-if="!hasMore" class="text-sm text-ink/60">
-      You've reached the end.
-    </p>
+    <!-- End of list -->
+    <div
+      v-else-if="!hasMore"
+      class="flex flex-col items-center gap-2 py-6"
+    >
+      <div class="w-12 h-0.5 bg-gray-300 rounded-full" />
+      <p class="text-sm text-ink/50">You've reached the end</p>
+    </div>
+
+    <!-- Sentinel placeholder (invisible but takes up space) -->
+    <div v-else class="h-4" />
   </div>
 </template>
 
@@ -191,5 +198,13 @@ const paginationItems = computed(() => {
 
 .page-number.active:hover {
   @apply bg-accent-dark text-paper;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 </style>

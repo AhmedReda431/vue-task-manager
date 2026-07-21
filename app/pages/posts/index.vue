@@ -51,6 +51,52 @@ function goToPage(page: number) {
   window.scrollTo({ top: 0, behavior: 'smooth' })
   store.fetchPage(page)
 }
+
+// Edit / Delete handlers
+const editingPost = ref<Post | null>(null)
+const isFormOpen = ref(false)
+const submitting = ref(false)
+const deleteTargetId = ref<number | null>(null)
+
+function openEditForm(post: Post) {
+  editingPost.value = post
+  isFormOpen.value = true
+}
+
+function closeForm() {
+  isFormOpen.value = false
+  editingPost.value = null
+}
+
+async function handleSubmit(draft: PostDraft) {
+  if (!editingPost.value) return
+  submitting.value = true
+  try {
+    await store.updatePost(editingPost.value.id, draft)
+    closeForm()
+  } finally {
+    submitting.value = false
+  }
+}
+
+function requestDelete(id: number) {
+  deleteTargetId.value = id
+}
+
+async function confirmDelete() {
+  if (!deleteTargetId.value) return
+  await store.deletePost(deleteTargetId.value)
+  deleteTargetId.value = null
+}
+
+// Debounced search
+let searchDebounce: ReturnType<typeof setTimeout>
+function handleSearch(query: string) {
+  clearTimeout(searchDebounce)
+  searchDebounce = setTimeout(() => {
+    store.setSearchQuery(query)
+  }, 400)
+}
 </script>
 
 <template>
@@ -62,12 +108,9 @@ function goToPage(page: number) {
         <p class="mt-2 text-sm text-ink/70">
           Pulled live from dummyjson. Choose your preferred pagination experience below.
         </p>
-        <small class="text-white p-2 mt-2 inline-block capitalize bg-red-500">
-          This supplemental guide demonstrates how to retrieve tasks (posts) from the endpoint.
-        </small>
       </div>
 
-      <!-- Pagination Mode -->
+      <!-- Pagination Mode Toggle -->
       <div class="mb-8 inline-flex rounded-full border border-black/10 bg-white p-1 shadow-sm">
         <button
           type="button"
@@ -87,6 +130,41 @@ function goToPage(page: number) {
         </button>
       </div>
 
+      <!-- Search & Filter -->
+      <PostFilters
+        :search-query="store.searchQuery"
+        :tag-filter="store.tagFilter"
+        :available-tags="store.availableTags"
+        @update:search-query="handleSearch"
+        @update:tag-filter="store.setTagFilter"
+      />
+
+      <!-- Active filters indicator -->
+      <div class="mb-4 flex flex-wrap items-center gap-2">
+        <p class="text-sm text-ink/60">
+          <span v-if="store.tagFilter && store.searchQuery.trim()">
+            {{ store.filteredPosts.length }} of {{ store.total }} posts
+          </span>
+          <span v-else>
+            {{ store.total }} posts
+          </span>
+          <template v-if="store.tagFilter || store.searchQuery">
+            <span>filtered by</span>
+            <span v-if="store.tagFilter" class="font-semibold text-accent"> tag:{{ store.tagFilter }}</span>
+            <span v-if="store.tagFilter && store.searchQuery.trim()"> + </span>
+            <span v-if="store.searchQuery.trim()" class="font-semibold text-accent"> search:"{{ store.searchQuery }}"</span>
+          </template>
+        </p>
+        <button
+          v-if="store.tagFilter || store.searchQuery"
+          type="button"
+          class="text-xs text-red-500 hover:text-red-700 hover:underline"
+          @click="store.clearFilters()"
+        >
+          Clear all
+        </button>
+      </div>
+
       <!-- Loading -->
       <LoadingState v-if="store.loading" />
 
@@ -98,23 +176,39 @@ function goToPage(page: number) {
       />
 
       <template v-else>
-        <!-- Posts -->
-        <div class="space-y-4">
-          <PostCard v-for="post in store.posts" :key="post.id" :post="post" />
+        <!-- Posts List -->
+        <div v-if="store.filteredPosts.length > 0" class="space-y-4">
+          <PostCard
+            v-for="post in store.filteredPosts"
+            :key="post.id"
+            :post="post"
+            @edit="openEditForm"
+            @delete="requestDelete"
+          />
         </div>
 
-        <!-- Pagination Buttons -->
+        <!-- Empty State -->
+        <div
+          v-else
+          class="rounded-xl bg-white p-8 text-center"
+        >
+          <p class="text-ink/70 font-medium">No posts found</p>
+          <p class="mt-1 text-sm text-ink/50">
+            Try adjusting your search or filter
+          </p>
+        </div>
+
+        <!-- Pagination: Buttons Mode -->
         <PaginationControls
-          v-if="store.mode === 'buttons'"
+          v-if="store.mode === 'buttons' && !(store.tagFilter && store.searchQuery.trim())"
           :current-page="store.page"
           :total-pages="store.totalPages"
           :show-info="false"
           @change="goToPage"
-          
         />
 
-        <!-- Infinite Scroll -->
-        <div v-else ref="sentinel" class="flex justify-center py-8">
+        <!-- Pagination: Infinite Scroll Mode -->
+        <div v-else-if="store.mode === 'scroll'" ref="sentinel" class="flex justify-center py-8">
           <PaginationControls
             mode="scroll"
             :loading-more="store.loadingMore"
@@ -123,39 +217,30 @@ function goToPage(page: number) {
         </div>
       </template>
     </div>
+
+    <!-- Edit Modal -->
+    <ModalDialog
+      v-if="isFormOpen && editingPost"
+      title="Edit post"
+      @close="closeForm"
+    >
+      <PostForm
+        :post="editingPost"
+        :submitting="submitting"
+        @submit="handleSubmit"
+        @cancel="closeForm"
+      />
+    </ModalDialog>
+
+    <!-- Delete Confirm -->
+    <ConfirmDialog
+      v-if="deleteTargetId"
+      title="Delete post?"
+      message="This can't be undone."
+      confirm-label="Delete"
+      danger
+      @confirm="confirmDelete"
+      @cancel="deleteTargetId = null"
+    />
   </div>
 </template>
-
-<style scoped>
-.pagination-btn {
-  @apply flex h-11 min-w-[44px] items-center justify-center rounded-xl border border-black/10 bg-white px-4 text-sm font-medium text-ink transition-all duration-300;
-}
-
-.pagination-btn:hover:not(:disabled) {
-  @apply border-accent bg-accent/10 text-accent shadow-md;
-  transform: translateY(-2px);
-}
-
-.pagination-btn:active:not(:disabled) {
-  transform: scale(0.96);
-}
-
-.pagination-btn:disabled {
-  @apply cursor-not-allowed opacity-40;
-}
-
-.page-number {
-  @apply w-11 px-0;
-}
-
-.page-number.active {
-  @apply border-accent bg-accent text-paper;
-  box-shadow:
-    0 8px 20px rgba(47, 111, 98, 0.22),
-    0 0 0 2px #043002;
-}
-
-.page-number.active:hover {
-  @apply bg-accent-dark text-paper;
-}
-</style>

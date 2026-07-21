@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import type { Task, TaskDraft, TaskStatus } from "~/types/task";
 import { MOCK_TASKS } from "~/utils/mockTasks";
+import { useToastStore } from "~/stores/toast";
 
 interface TasksState {
   tasks: Task[];
@@ -89,6 +90,7 @@ export const useTasksStore = defineStore("tasks", {
     },
 
     async addTask(draft: TaskDraft) {
+      const toast = useToastStore();
       await delay(300);
       const newTask: Task = {
         id: `t-${Date.now()}`,
@@ -96,24 +98,30 @@ export const useTasksStore = defineStore("tasks", {
       };
       this.tasks.unshift(newTask);
       this.currentPage = 1;
+      toast.success("Task created successfully");
       return newTask;
     },
 
     async updateTask(id: string, draft: TaskDraft) {
+      const toast = useToastStore();
       await delay(300);
       const index = this.tasks.findIndex((task) => task.id === id);
-      if (index === -1) return;
+      if (index === -1) {
+        toast.error("Task not found");
+        return;
+      }
       this.tasks[index] = { id, ...draft };
+      toast.success("Task updated successfully");
     },
 
     async deleteTask(id: string) {
+      const toast = useToastStore();
       await delay(300);
       this.tasks = this.tasks.filter((task) => task.id !== id);
-      const count = this.filteredTasks.length;
-      const totalPages = Math.max(1, Math.ceil(count / this.pageSize));
-      if (this.currentPage > totalPages) {
-        this.currentPage = Math.max(1, totalPages);
+      if (this.currentPage > this.totalPages) {
+        this.currentPage = Math.max(1, this.totalPages);
       }
+      toast.success("Task deleted successfully");
     },
 
     setStatusFilter(status: TaskStatus | "all") {
