@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import type { Task, TaskDraft } from "~/types/task";
 
+useSeoMeta({
+  title: "Tasks Page",
+  description: "Tasks Page that show how how to represent mock data ( tasks)",
+});
 const store = useTasksStore();
 
 onMounted(() => {
   store.fetchTasks();
 });
-
 const isFormOpen = ref(false);
 const editingTask = ref<Task | undefined>(undefined);
 const submitting = ref(false);

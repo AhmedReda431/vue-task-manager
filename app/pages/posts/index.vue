@@ -1,6 +1,9 @@
 <script setup lang="ts">
 const store = usePostsStore();
-
+useSeoMeta({
+  title: "Posts Page",
+  description: "posts Page that show how how to represent data that fetched from api ( tasks)",
+});
 const sentinel = ref<HTMLElement | null>(null);
 let observer: IntersectionObserver | null = null;
 
