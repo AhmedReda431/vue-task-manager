@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { TaskDraft } from '~/types/task'
+
 const route = useRoute()
 const router = useRouter()
 const store = useTasksStore()
@@ -23,10 +25,23 @@ const formattedDueDate = computed(() => {
   })
 })
 
-async function handleDelete() {
+const isFormOpen = ref(false)
+const submitting = ref(false)
+const isDeleteOpen = ref(false)
+
+async function handleSubmit(draft: TaskDraft) {
   if (!task.value) return
-  const confirmed = confirm('Delete this task? This can\'t be undone.')
-  if (!confirmed) return
+  submitting.value = true
+  try {
+    await store.updateTask(task.value.id, draft)
+    isFormOpen.value = false
+  } finally {
+    submitting.value = false
+  }
+}
+
+async function confirmDelete() {
+  if (!task.value) return
   await store.deleteTask(task.value.id)
   router.push('/')
 }
@@ -40,14 +55,14 @@ async function handleDelete() {
 
     <LoadingState v-if="store.loading" />
 
-    <div v-else-if="!task" class="rounded-lg border border-black/5 bg-white p-6 text-center">
+    <div v-else-if="!task" class="rounded-xl bg-white p-6 text-center task-card">
       <p class="font-medium text-slate-700">Task not found.</p>
       <p class="mt-1 text-sm text-slate-500">It may have been deleted.</p>
     </div>
 
-    <article v-else class="rounded-lg border border-black/5 bg-white p-6">
+    <article v-else class="task-card rounded-xl bg-white p-6" :class="`task-card--${task.status}`">
       <div class="mb-4 flex items-start justify-between gap-4">
-        <h1 class="text-xl font-semibold text-[#1c2530]">{{ task.title }}</h1>
+        <h1 class="font-display text-xl font-semibold text-ink">{{ task.title }}</h1>
         <StatusBadge :status="task.status" />
       </div>
 
@@ -60,9 +75,32 @@ async function handleDelete() {
         <span class="font-medium text-slate-700">Due:</span> {{ formattedDueDate }}
       </div>
 
-      <button type="button" class="btn rounded-md border border-red-200 px-4 py-2 text-sm text-red-600 hover:bg-red-50" @click="handleDelete">
-        Delete task
-      </button>
+      <div class="flex gap-2">
+        <button type="button" class="btn btn-primary px-4 py-2 text-sm" @click="isFormOpen = true">
+          Edit task
+        </button>
+        <button
+          type="button"
+          class="btn rounded-md border border-red-200 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+          @click="isDeleteOpen = true"
+        >
+          Delete task
+        </button>
+      </div>
     </article>
+
+    <ModalDialog v-if="isFormOpen && task" title="Edit task" @close="isFormOpen = false">
+      <TaskForm :task="task" :submitting="submitting" @submit="handleSubmit" @cancel="isFormOpen = false" />
+    </ModalDialog>
+
+    <ConfirmDialog
+      v-if="isDeleteOpen"
+      title="Delete task?"
+      message="This can't be undone."
+      confirm-label="Delete"
+      danger
+      @confirm="confirmDelete"
+      @cancel="isDeleteOpen = false"
+    />
   </div>
 </template>

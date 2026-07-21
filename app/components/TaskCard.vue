@@ -28,11 +28,12 @@ const isOverdue = computed(() => {
 
 <template>
   <article
-    class="task-card-enter group rounded-lg border border-black/5 bg-white p-4 transition-shadow hover:shadow-md"
+    class="task-card task-card-enter group rounded-xl bg-white p-4"
+    :class="`task-card--${task.status}`"
   >
     <div class="flex items-start justify-between gap-3">
       <NuxtLink :to="`/tasks/${task.id}`" class="min-w-0 flex-1">
-        <h3 class="truncate font-medium text-[#1c2530] group-hover:underline">
+        <h3 class="truncate font-medium text-ink group-hover:underline">
           {{ task.title }}
         </h3>
         <p v-if="task.description" class="mt-1 line-clamp-2 text-sm text-slate-500">

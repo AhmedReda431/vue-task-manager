@@ -1,49 +1,144 @@
-import type { Task } from '~/types/task'
+import type { Task } from "~/types/task";
 
-// Stand-in for a real backend. The store copies this into state after
-// a simulated delay so the UI has real loading/error states to handle,
-// per the brief's "mock data with setTimeout" option.
 export const MOCK_TASKS: Task[] = [
   {
-    id: 't-1',
-    title: 'Set up project repo',
-    description: 'Initialize the repo, add linting, and push the first commit.',
-    status: 'done',
-    dueDate: '2026-06-10'
+    id: "t-1",
+    title: "Set up project repo",
+    description: "Initialize the repo, add linting, and push the first commit.",
+    status: "done",
+    dueDate: "2026-06-10",
   },
   {
-    id: 't-2',
-    title: 'Design task list layout',
-    description: 'Sketch the list view, including filters and the empty state.',
-    status: 'done',
-    dueDate: '2026-06-18'
+    id: "t-2",
+    title: "Design task list layout",
+    description: "Sketch the list view, including filters and the empty state.",
+    status: "done",
+    dueDate: "2026-06-18",
   },
   {
-    id: 't-3',
-    title: 'Build task form validation',
-    description: 'Title is required, due date must be in the future.',
-    status: 'in-progress',
-    dueDate: '2026-07-30'
+    id: "t-3",
+    title: "Build task form validation",
+    description: "Title is required and the due date must be in the future.",
+    status: "in-progress",
+    dueDate: "2026-07-30",
   },
   {
-    id: 't-4',
-    title: 'Wire up filtering and search',
-    description: 'Filter by status and search by title, combinable.',
-    status: 'in-progress',
-    dueDate: '2026-08-02'
+    id: "t-4",
+    title: "Wire up filtering and search",
+    description: "Support searching by title and filtering by task status.",
+    status: "in-progress",
+    dueDate: "2026-08-02",
   },
   {
-    id: 't-5',
-    title: 'Write unit tests',
-    description: 'Cover the validation helper and the store actions.',
-    status: 'pending',
-    dueDate: '2026-08-10'
+    id: "t-5",
+    title: "Write unit tests",
+    description: "Cover store actions, composables, and validation helpers.",
+    status: "pending",
+    dueDate: "2026-08-10",
   },
   {
-    id: 't-6',
-    title: 'Prepare README',
-    description: 'Document setup steps so a reviewer can run this in one go.',
-    status: 'pending',
-    dueDate: '2026-08-12'
-  }
-]
+    id: "t-6",
+    title: "Prepare README",
+    description: "Add setup instructions and project overview.",
+    status: "pending",
+    dueDate: "2026-08-12",
+  },
+  {
+    id: "t-7",
+    title: "Implement authentication",
+    description: "Add login, logout, and route protection.",
+    status: "done",
+    dueDate: "2026-06-22",
+  },
+  {
+    id: "t-8",
+    title: "Create dashboard layout",
+    description: "Build a responsive dashboard with sidebar navigation.",
+    status: "done",
+    dueDate: "2026-06-25",
+  },
+  {
+    id: "t-9",
+    title: "Add dark mode",
+    description: "Allow users to switch between light and dark themes.",
+    status: "in-progress",
+    dueDate: "2026-08-05",
+  },
+  {
+    id: "t-10",
+    title: "Optimize bundle size",
+    description: "Lazy-load pages and remove unused dependencies.",
+    status: "pending",
+    dueDate: "2026-08-15",
+  },
+  {
+    id: "t-11",
+    title: "Create reusable modal component",
+    description: "Support confirmation, forms, and custom actions.",
+    status: "done",
+    dueDate: "2026-06-28",
+  },
+  {
+    id: "t-12",
+    title: "Implement notifications",
+    description: "Display success and error toast messages.",
+    status: "in-progress",
+    dueDate: "2026-08-06",
+  },
+  {
+    id: "t-13",
+    title: "Integrate REST API",
+    description: "Replace mock data with backend endpoints.",
+    status: "pending",
+    dueDate: "2026-08-20",
+  },
+  {
+    id: "t-14",
+    title: "Create user profile page",
+    description: "Display profile details and editable preferences.",
+    status: "pending",
+    dueDate: "2026-08-18",
+  },
+  {
+    id: "t-15",
+    title: "Add pagination",
+    description: "Support page navigation for large datasets.",
+    status: "done",
+    dueDate: "2026-07-01",
+  },
+  {
+    id: "t-16",
+    title: "Implement infinite scroll",
+    description: "Automatically load additional items while scrolling.",
+    status: "in-progress",
+    dueDate: "2026-08-08",
+  },
+  {
+    id: "t-17",
+    title: "Improve accessibility",
+    description: "Add keyboard navigation and proper ARIA attributes.",
+    status: "pending",
+    dueDate: "2026-08-21",
+  },
+  {
+    id: "t-18",
+    title: "Support file uploads",
+    description: "Allow users to attach files to tasks.",
+    status: "pending",
+    dueDate: "2026-08-24",
+  },
+  {
+    id: "t-19",
+    title: "Implement role management",
+    description: "Differentiate permissions for admins and members.",
+    status: "in-progress",
+    dueDate: "2026-08-16",
+  },
+  {
+    id: "t-20",
+    title: "Deploy production build",
+    description: "Deploy the application and verify production configuration.",
+    status: "pending",
+    dueDate: "2026-08-30",
+  },
+];
