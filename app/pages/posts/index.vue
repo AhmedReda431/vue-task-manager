@@ -1,101 +1,101 @@
 <script setup lang="ts">
-const store = usePostsStore()
+const store = usePostsStore();
 
-const sentinel = ref<HTMLElement | null>(null)
-let observer: IntersectionObserver | null = null
+const sentinel = ref<HTMLElement | null>(null);
+let observer: IntersectionObserver | null = null;
 
 function observeSentinel() {
-  if (!observer || !sentinel.value) return
-  observer.disconnect()
-  observer.observe(sentinel.value)
+  if (!observer || !sentinel.value) return;
+  observer.disconnect();
+  observer.observe(sentinel.value);
 }
 
 onMounted(async () => {
   if (store.posts.length === 0) {
-    await store.fetchPage(1)
+    await store.fetchPage(1);
   }
 
   observer = new IntersectionObserver(
     (entries) => {
-      if (entries[0]?.isIntersecting && store.mode === 'scroll') {
-        store.fetchNextPage()
+      if (entries[0]?.isIntersecting && store.mode === "scroll") {
+        store.fetchNextPage();
       }
     },
-    { rootMargin: '200px' }
-  )
+    { rootMargin: "200px" },
+  );
 
-  await nextTick()
-  observeSentinel()
-})
+  await nextTick();
+  observeSentinel();
+});
 
 watch(sentinel, async () => {
-  await nextTick()
-  observeSentinel()
-})
+  await nextTick();
+  observeSentinel();
+});
 
 watch(
   () => store.mode,
   async (mode) => {
-    if (mode !== 'scroll') return
-    await nextTick()
-    observeSentinel()
-  }
-)
+    if (mode !== "scroll") return;
+    await nextTick();
+    observeSentinel();
+  },
+);
 
 onUnmounted(() => {
-  observer?.disconnect()
-})
+  observer?.disconnect();
+});
 
 function goToPage(page: number) {
-  if (page < 1 || page > store.totalPages || page === store.page) return
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-  store.fetchPage(page)
+  if (page < 1 || page > store.totalPages || page === store.page) return;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  store.fetchPage(page);
 }
 
 // Edit / Delete handlers
-const editingPost = ref<Post | null>(null)
-const isFormOpen = ref(false)
-const submitting = ref(false)
-const deleteTargetId = ref<number | null>(null)
+const editingPost = ref<Post | null>(null);
+const isFormOpen = ref(false);
+const submitting = ref(false);
+const deleteTargetId = ref<number | null>(null);
 
 function openEditForm(post: Post) {
-  editingPost.value = post
-  isFormOpen.value = true
+  editingPost.value = post;
+  isFormOpen.value = true;
 }
 
 function closeForm() {
-  isFormOpen.value = false
-  editingPost.value = null
+  isFormOpen.value = false;
+  editingPost.value = null;
 }
 
 async function handleSubmit(draft: PostDraft) {
-  if (!editingPost.value) return
-  submitting.value = true
+  if (!editingPost.value) return;
+  submitting.value = true;
   try {
-    await store.updatePost(editingPost.value.id, draft)
-    closeForm()
+    await store.updatePost(editingPost.value.id, draft);
+    closeForm();
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
 }
 
 function requestDelete(id: number) {
-  deleteTargetId.value = id
+  deleteTargetId.value = id;
 }
 
 async function confirmDelete() {
-  if (!deleteTargetId.value) return
-  await store.deletePost(deleteTargetId.value)
-  deleteTargetId.value = null
+  if (!deleteTargetId.value) return;
+  await store.deletePost(deleteTargetId.value);
+  deleteTargetId.value = null;
 }
 
 // Debounced search
-let searchDebounce: ReturnType<typeof setTimeout>
+let searchDebounce: ReturnType<typeof setTimeout>;
 function handleSearch(query: string) {
-  clearTimeout(searchDebounce)
+  clearTimeout(searchDebounce);
   searchDebounce = setTimeout(() => {
-    store.setSearchQuery(query)
-  }, 400)
+    store.setSearchQuery(query);
+  }, 400);
 }
 </script>
 
@@ -106,16 +106,27 @@ function handleSearch(query: string) {
       <div class="mb-8">
         <h1 class="font-display text-4xl font-semibold text-ink">Posts</h1>
         <p class="mt-2 text-sm text-ink/70">
-          Pulled live from dummyjson. Choose your preferred pagination experience below.
+          Pulled live from dummyjson. Choose your preferred pagination
+          experience below.
         </p>
+        <small class="text-white p-2 mt-2 inline-block capitalize bg-red-500"
+          >This supplemental guide demonstrates how to retrieve tasks (posts)
+          from the endpoint.
+        </small>
       </div>
 
       <!-- Pagination Mode Toggle -->
-      <div class="mb-8 inline-flex rounded-full border border-black/10 bg-white p-1 shadow-sm">
+      <div
+        class="mb-8 inline-flex rounded-full border border-black/10 bg-white p-1 shadow-sm"
+      >
         <button
           type="button"
           class="rounded-full px-5 py-2 text-sm font-medium transition-all duration-300"
-          :class="store.mode === 'buttons' ? 'bg-accent text-paper shadow' : 'text-ink hover:text-accent'"
+          :class="
+            store.mode === 'buttons'
+              ? 'bg-accent text-paper shadow'
+              : 'text-ink hover:text-accent'
+          "
           @click="store.setMode('buttons')"
         >
           Page Buttons
@@ -123,7 +134,11 @@ function handleSearch(query: string) {
         <button
           type="button"
           class="rounded-full px-5 py-2 text-sm font-medium transition-all duration-300"
-          :class="store.mode === 'scroll' ? 'bg-accent text-paper shadow' : 'text-ink hover:text-accent'"
+          :class="
+            store.mode === 'scroll'
+              ? 'bg-accent text-paper shadow'
+              : 'text-ink hover:text-accent'
+          "
           @click="store.setMode('scroll')"
         >
           Infinite Scroll
@@ -145,14 +160,19 @@ function handleSearch(query: string) {
           <span v-if="store.tagFilter && store.searchQuery.trim()">
             {{ store.filteredPosts.length }} of {{ store.total }} posts
           </span>
-          <span v-else>
-            {{ store.total }} posts
-          </span>
+          <span v-else> {{ store.total }} posts </span>
           <template v-if="store.tagFilter || store.searchQuery">
             <span>filtered by</span>
-            <span v-if="store.tagFilter" class="font-semibold text-accent"> tag:{{ store.tagFilter }}</span>
+            <span v-if="store.tagFilter" class="font-semibold text-accent">
+              tag:{{ store.tagFilter }}</span
+            >
             <span v-if="store.tagFilter && store.searchQuery.trim()"> + </span>
-            <span v-if="store.searchQuery.trim()" class="font-semibold text-accent"> search:"{{ store.searchQuery }}"</span>
+            <span
+              v-if="store.searchQuery.trim()"
+              class="font-semibold text-accent"
+            >
+              search:"{{ store.searchQuery }}"</span
+            >
           </template>
         </p>
         <button
@@ -188,10 +208,7 @@ function handleSearch(query: string) {
         </div>
 
         <!-- Empty State -->
-        <div
-          v-else
-          class="rounded-xl bg-white p-8 text-center"
-        >
+        <div v-else class="rounded-xl bg-white p-8 text-center">
           <p class="text-ink/70 font-medium">No posts found</p>
           <p class="mt-1 text-sm text-ink/50">
             Try adjusting your search or filter
@@ -200,7 +217,10 @@ function handleSearch(query: string) {
 
         <!-- Pagination: Buttons Mode -->
         <PaginationControls
-          v-if="store.mode === 'buttons' && !(store.tagFilter && store.searchQuery.trim())"
+          v-if="
+            store.mode === 'buttons' &&
+            !(store.tagFilter && store.searchQuery.trim())
+          "
           :current-page="store.page"
           :total-pages="store.totalPages"
           :show-info="false"
@@ -208,7 +228,11 @@ function handleSearch(query: string) {
         />
 
         <!-- Pagination: Infinite Scroll Mode -->
-        <div v-else-if="store.mode === 'scroll'" ref="sentinel" class="flex justify-center py-8">
+        <div
+          v-else-if="store.mode === 'scroll'"
+          ref="sentinel"
+          class="flex justify-center py-8"
+        >
           <PaginationControls
             mode="scroll"
             :loading-more="store.loadingMore"
