@@ -97,6 +97,11 @@ function handleSearch(query: string) {
     store.setSearchQuery(query);
   }, 400);
 }
+function clearSearch() {
+  localSearch.value = "";
+  emit("update:searchQuery", "");
+}
+
 </script>
 
 <template>
@@ -152,7 +157,7 @@ function handleSearch(query: string) {
       </div>
 
       <!-- Search & Filter -->
-      <PostFilters
+      <PostsPostFilters
         :tag-filter="store.tagFilter"
         :available-tags="store.availableTags"
         @update:search-query="handleSearch"
@@ -188,10 +193,10 @@ function handleSearch(query: string) {
       </div>
 
       <!-- Loading -->
-      <LoadingState v-if="store.loading" />
+      <SharedLoadingState v-if="store.loading" />
 
       <!-- Error -->
-      <ErrorState
+      <SharedErrorState
         v-else-if="store.error"
         :message="store.error"
         @retry="() => store.fetchPage(store.page)"
@@ -200,7 +205,7 @@ function handleSearch(query: string) {
       <template v-else>
         <!-- Posts List - USE store.posts NOT store.filteredPosts -->
         <div v-if="store.posts.length > 0" class="space-y-4">
-          <PostCard
+          <PostsPostCard
             v-for="post in store.posts"
             :key="post.id"
             :post="post"
@@ -218,7 +223,7 @@ function handleSearch(query: string) {
         </div>
 
         <!-- Pagination: Buttons Mode -->
-        <PaginationControls
+        <SharedPaginationControls
           v-if="store.mode === 'buttons'"
           :current-page="store.page"
           :total-pages="store.totalPages"
@@ -228,7 +233,7 @@ function handleSearch(query: string) {
 
         <!-- Pagination: Infinite Scroll Mode -->
         <div v-else ref="sentinel" class="flex justify-center py-8">
-          <PaginationControls
+          <SharedPaginationControls
             mode="scroll"
             :loading-more="store.loadingMore"
             :has-more="store.hasMore"
@@ -238,21 +243,21 @@ function handleSearch(query: string) {
     </div>
 
     <!-- Edit Modal -->
-    <ModalDialog
+    <SharedModalDialog
       v-if="isFormOpen && editingPost"
       title="Edit post"
       @close="closeForm"
     >
-      <PostForm
+      <PostsPostForm
         :post="editingPost"
         :submitting="submitting"
         @submit="handleSubmit"
         @cancel="closeForm"
       />
-    </ModalDialog>
+    </SharedModalDialog>
 
     <!-- Delete Confirm -->
-    <ConfirmDialog
+    <SharedConfirmDialog
       v-if="deleteTargetId"
       title="Delete post?"
       message="This can't be undone."

@@ -79,7 +79,7 @@ async function handlePageChange(page: number) {
     </div>
 
     <!-- Filters -->
-    <TaskFilters
+    <TasksTaskFilters
       class="mb-5"
       :status-filter="store.statusFilter"
       :search-query="store.searchQuery"
@@ -88,17 +88,17 @@ async function handlePageChange(page: number) {
     />
 
     <!-- Initial Loading -->
-    <LoadingState v-if="store.loading" />
+    <SharedLoadingState v-if="store.loading" />
 
     <!-- Error -->
-    <ErrorState
+    <SharedErrorState
       v-else-if="store.error"
       :message="store.error"
       @retry="store.fetchTasks"
     />
 
     <!-- Empty -->
-    <EmptyState
+    <SharedEmptyState
       v-else-if="store.filteredTasks.length === 0"
       :has-tasks="store.tasks.length > 0"
     />
@@ -106,7 +106,7 @@ async function handlePageChange(page: number) {
     <!-- Content -->
     <template v-else>
       <!-- Page transition loading -->
-      <LoadingState v-if="store.pageLoading" />
+      <SharedLoadingState v-if="store.pageLoading" />
 
       <!-- Task list -->
       <TransitionGroup
@@ -115,7 +115,7 @@ async function handlePageChange(page: number) {
         name="list"
         class="space-y-3"
       >
-        <TaskCard
+        <TasksTaskCard
           v-for="task in store.paginatedTasks"
           :key="task.id"
           :task="task"
@@ -125,7 +125,7 @@ async function handlePageChange(page: number) {
       </TransitionGroup>
 
       <!-- Pagination -->
-      <PaginationControls
+      <SharedPaginationControls
         :current-page="store.currentPage"
         :total-pages="store.totalPages"
         :showing-from="store.showingFrom"
@@ -137,20 +137,20 @@ async function handlePageChange(page: number) {
     </template>
 
     <!-- Modals -->
-    <ModalDialog
+    <SharedModalDialog
       v-if="isFormOpen"
       :title="editingTask ? 'Edit task' : 'Add task'"
       @close="closeForm"
     >
-      <TaskForm
+      <TasksTaskForm
         :task="editingTask"
         :submitting="submitting"
         @submit="handleSubmit"
         @cancel="closeForm"
       />
-    </ModalDialog>
+    </SharedModalDialog>
 
-    <ConfirmDialog
+    <SharedConfirmDialog
       v-if="deleteTargetId"
       title="Delete task?"
       message="This can't be undone."

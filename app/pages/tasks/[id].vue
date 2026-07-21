@@ -53,7 +53,7 @@ async function confirmDelete() {
       &larr; Back to tasks
     </NuxtLink>
 
-    <LoadingState v-if="store.loading" />
+    <SharedLoadingState v-if="store.loading" />
 
     <div v-else-if="!task" class="rounded-xl bg-white p-6 text-center task-card">
       <p class="font-medium text-slate-700">Task not found.</p>
@@ -63,7 +63,7 @@ async function confirmDelete() {
     <article v-else class="task-card rounded-xl bg-white p-6" :class="`task-card--${task.status}`">
       <div class="mb-4 flex items-start justify-between gap-4">
         <h1 class="font-display text-xl font-semibold text-ink">{{ task.title }}</h1>
-        <StatusBadge :status="task.status" />
+        <SharedStatusBadge :status="task.status" />
       </div>
 
       <p v-if="task.description" class="mb-6 whitespace-pre-line text-sm leading-relaxed text-slate-600">
@@ -89,11 +89,11 @@ async function confirmDelete() {
       </div>
     </article>
 
-    <ModalDialog v-if="isFormOpen && task" title="Edit task" @close="isFormOpen = false">
-      <TaskForm :task="task" :submitting="submitting" @submit="handleSubmit" @cancel="isFormOpen = false" />
-    </ModalDialog>
+    <SharedModalDialog v-if="isFormOpen && task" title="Edit task" @close="isFormOpen = false">
+      <TasksTaskForm :task="task" :submitting="submitting" @submit="handleSubmit" @cancel="isFormOpen = false" />
+    </SharedModalDialog>
 
-    <ConfirmDialog
+    <SharedConfirmDialog
       v-if="isDeleteOpen"
       title="Delete task?"
       message="This can't be undone."

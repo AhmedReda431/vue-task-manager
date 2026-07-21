@@ -1,9 +1,9 @@
 <template>
   <div class="min-h-screen font-sans">
     <NuxtRouteAnnouncer />
-    <AppHeader />
+    <SharedAppHeader />
     <NuxtPage />
-    <ToastContainer />
-    <ScrollTopButton />
+    <ToastsToastContainer />
+    <SharedScrollTopButton />
   </div>
 </template>

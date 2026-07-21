@@ -72,7 +72,7 @@ const isOverdue = computed(() => {
     </div>
 
     <div class="mt-3 flex items-center justify-between">
-      <StatusBadge :status="task.status" />
+      <SharedStatusBadge :status="task.status" />
       <span class="text-xs" :class="isOverdue ? 'font-medium text-red-600' : 'text-slate-400'">
         Due {{ formattedDueDate }}
       </span>

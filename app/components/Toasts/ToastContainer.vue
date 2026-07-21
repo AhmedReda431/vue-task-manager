@@ -13,7 +13,7 @@ const store = useToastStore()
         leave-from-class="translate-x-0 opacity-100 scale-100"
         leave-to-class="translate-x-full opacity-0 scale-95"
       >
-        <ToastItem
+        <ToastsToastItem
           v-for="toast in store.toasts"
           :key="toast.id"
           :toast="toast"

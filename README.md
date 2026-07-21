@@ -54,10 +54,10 @@ npm run preview
 ```
 app/
   components/
-    TaskCard.vue, TaskForm.vue, TaskFilters.vue, StatusBadge.vue   # tasks
-    PostCard.vue                                                    # posts
-    AppHeader.vue, ModalDialog.vue, ConfirmDialog.vue, Spinner.vue  # shared
-    LoadingState.vue, ErrorState.vue, EmptyState.vue                # shared
+    TasksTaskCard.vue, TasksTaskForm.vue, TasksTaskFilters.vue, SharedStatusBadge.vue   # tasks
+    PostsPostCard.vue                                                    # posts
+    AppHeader.vue, SharedModalDialog.vue, SharedConfirmDialog.vue, SharedSpinner.vue  # shared
+    SharedLoadingState.vue, SharedErrorState.vue, SharedEmptyState.vue                # shared
   pages/
     index.vue        # task list
     tasks/[id].vue    # task detail - edit or delete

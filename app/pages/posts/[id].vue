@@ -65,7 +65,7 @@ async function confirmDelete() {
         Back to posts
       </NuxtLink>
 
-      <LoadingState v-if="loading" />
+      <SharedLoadingState v-if="loading" />
 
       <div
         v-else-if="!post"
@@ -139,20 +139,20 @@ async function confirmDelete() {
         </div>
       </article>
 
-      <ModalDialog
+      <SharedModalDialog
         v-if="isFormOpen && post"
         title="Edit post"
         @close="isFormOpen = false"
       >
-        <PostForm
+        <PostsPostForm
           :post="post"
           :submitting="submitting"
           @submit="handleSubmit"
           @cancel="isFormOpen = false"
         />
-      </ModalDialog>
+      </SharedModalDialog>
 
-      <ConfirmDialog
+      <SharedConfirmDialog
         v-if="isDeleteOpen"
         title="Delete post?"
         message="This can't be undone."
