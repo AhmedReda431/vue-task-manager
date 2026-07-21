@@ -69,18 +69,28 @@ export const usePostsStore = defineStore("posts", {
 
       this.loadingMore = true;
       this.error = null;
+
       const nextPage = this.page + 1;
       const skip = (nextPage - 1) * this.limit;
 
       try {
+        // Simulate a real API request
+        await new Promise((resolve) => setTimeout(resolve, 800));
+
         const response = await $fetch<DummyJsonPostsResponse>(API_URL, {
-          query: { limit: this.limit, skip },
+          query: {
+            limit: this.limit,
+            skip,
+          },
         });
 
-        this.posts = [...this.posts, ...(response.posts ?? [])];
+        this.posts.push(...(response.posts ?? []));
         this.page = nextPage;
-        if (response.total) this.total = response.total;
-      } catch (err) {
+
+        if (response.total) {
+          this.total = response.total;
+        }
+      } catch {
         this.error = "Could not load more posts.";
       } finally {
         this.loadingMore = false;

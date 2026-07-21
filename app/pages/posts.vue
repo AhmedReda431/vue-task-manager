@@ -172,7 +172,7 @@ const paginationItems = computed(() => {
             v-for="(item, index) in paginationItems"
             :key="`${item}-${index}`"
           >
-            <span v-if="item === '...'" class="px-2 font-semibold text-gold">
+            <span v-if="item === '...'" class="px-2 font-semibold text-accent">
               •••
             </span>
 
@@ -207,7 +207,14 @@ const paginationItems = computed(() => {
 
         <!-- Infinite Scroll -->
         <div v-else ref="sentinel" class="flex justify-center py-8">
-          <Spinner v-if="store.loadingMore" size="sm" class="text-accent" />
+          <div
+            v-if="store.loadingMore"
+            class="mt-6 flex flex-col items-center gap-3 py-6"
+          >
+            <Spinner size="md" class="text-accent" />
+
+            <p class="text-sm text-ink/70">Loading more posts...</p>
+          </div>
 
           <p v-else-if="!store.hasMore" class="text-sm text-ink/60">
             You've reached the end.
@@ -244,7 +251,7 @@ const paginationItems = computed(() => {
   @apply border-accent bg-accent text-paper;
   box-shadow:
     0 8px 20px rgba(47, 111, 98, 0.22),
-    0 0 0 2px #b8862b;
+    0 0 0 2px #043002;
 }
 
 .page-number.active:hover {
