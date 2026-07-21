@@ -113,7 +113,7 @@ function clearSearch() {
           Pulled live from dummyjson. Choose your preferred pagination
           experience below.
         </p>
-        <small class="text-white p-2 mt-2 inline-block capitalize bg-red-500"
+        <small class="text-red-800 font-medium p-2 mt-2 inline-block capitalize bg-red-100"
           >This supplemental guide demonstrates how to retrieve tasks (posts)
           from the endpoint.
         </small>
