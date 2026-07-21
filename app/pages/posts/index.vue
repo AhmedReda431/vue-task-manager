@@ -227,7 +227,10 @@ function clearSearch() {
           v-if="store.mode === 'buttons'"
           :current-page="store.page"
           :total-pages="store.totalPages"
-          :show-info="false"
+          :showing-from="store.showingFrom"
+          :showing-to="store.showingTo"
+          :total-count="store.total"
+          :show-info="true"
           @change="goToPage"
         />
 

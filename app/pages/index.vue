@@ -1,59 +1,59 @@
 <script setup lang="ts">
-import type { Task, TaskDraft } from '~/types/task'
+import type { Task, TaskDraft } from "~/types/task";
 
-const store = useTasksStore()
+const store = useTasksStore();
 
 onMounted(() => {
-  store.fetchTasks()
-})
+  store.fetchTasks();
+});
 
-const isFormOpen = ref(false)
-const editingTask = ref<Task | undefined>(undefined)
-const submitting = ref(false)
-const deleteTargetId = ref<string | null>(null)
+const isFormOpen = ref(false);
+const editingTask = ref<Task | undefined>(undefined);
+const submitting = ref(false);
+const deleteTargetId = ref<string | null>(null);
 
 function openAddForm() {
-  editingTask.value = undefined
-  isFormOpen.value = true
+  editingTask.value = undefined;
+  isFormOpen.value = true;
 }
 
 function openEditForm(task: Task) {
-  editingTask.value = task
-  isFormOpen.value = true
+  editingTask.value = task;
+  isFormOpen.value = true;
 }
 
 function closeForm() {
-  isFormOpen.value = false
-  editingTask.value = undefined
+  isFormOpen.value = false;
+  editingTask.value = undefined;
 }
 
 async function handleSubmit(draft: TaskDraft) {
-  submitting.value = true
+  submitting.value = true;
   try {
     if (editingTask.value) {
-      await store.updateTask(editingTask.value.id, draft)
+      await store.updateTask(editingTask.value.id, draft);
     } else {
-      await store.addTask(draft)
+      await store.addTask(draft);
     }
-    closeForm()
+    closeForm();
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
 }
 
 function requestDelete(id: string) {
-  deleteTargetId.value = id
+  deleteTargetId.value = id;
 }
 
 async function confirmDelete() {
-  if (!deleteTargetId.value) return
-  await store.deleteTask(deleteTargetId.value)
-  deleteTargetId.value = null
+  if (!deleteTargetId.value) return;
+  await store.deleteTask(deleteTargetId.value);
+  deleteTargetId.value = null;
 }
 
 async function handlePageChange(page: number) {
-  await store.setPage(page)
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  await store.setPage(page);
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 </script>
 
@@ -62,7 +62,9 @@ async function handlePageChange(page: number) {
     <!-- Header -->
     <div class="mb-6 flex items-center justify-between">
       <div>
-        <h1 class="font-display text-2xl font-semibold text-ink dark:text-paper">
+        <h1
+          class="font-display text-2xl font-semibold text-ink dark:text-paper"
+        >
           Tasks
         </h1>
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
@@ -109,12 +111,7 @@ async function handlePageChange(page: number) {
       <SharedLoadingState v-if="store.pageLoading" />
 
       <!-- Task list -->
-      <TransitionGroup
-        v-else
-        tag="div"
-        name="list"
-        class="space-y-3"
-      >
+      <TransitionGroup v-else tag="div" name="list" class="space-y-3">
         <TasksTaskCard
           v-for="task in store.paginatedTasks"
           :key="task.id"
